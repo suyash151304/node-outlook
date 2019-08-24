@@ -6,6 +6,7 @@ var utilities = require('./utilities.js');
  * @module calendar
  */
 
+ 
 module.exports = {
   /**
    * Used to get events from a calendar.
