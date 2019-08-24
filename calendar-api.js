@@ -6,7 +6,6 @@ var utilities = require('./utilities.js');
  * @module calendar
  */
 
- // my fork aahe
 module.exports = {
   /**
    * Used to get events from a calendar.
@@ -60,7 +59,7 @@ module.exports = {
     var userSpec = utilities.getUserSegment(parameters);
     var calendarSpec = parameters.calendarId === undefined ? '' : '/Calendars/' + parameters.calendarId;
 
-    var requestUrl = base.apiEndpoint() + userSpec + calendarSpec + '/Events';
+    var requestUrl = base.apiEndpoint() + userSpec + calendarSpec + '/calendarview?startDateTime=' + parameters.startDateTime + '&endDateTime=' + parameters.endDateTime;
 
     var apiOptions = {
       url: requestUrl,
@@ -510,6 +509,84 @@ module.exports = {
       token: parameters.token,
       user: parameters.user,
       method: 'DELETE'
+    };
+
+    if (parameters.odataParams !== undefined) {
+      apiOptions['query'] = parameters.odataParams;
+    }
+
+    base.makeApiCall(apiOptions, function(error, response) {
+      if (error) {
+        if (typeof callback === 'function') {
+          callback(error, response);
+        }
+      }
+      else if (response.statusCode !== 204) {
+        if (typeof callback === 'function') {
+          callback('REST request returned ' + response.statusCode + '; body: ' + JSON.stringify(response.body), response);
+        }
+      }
+      else {
+        if (typeof callback === 'function') {
+          callback(null, response);
+        }
+      }
+    });
+  },
+
+
+    /**
+   * Cancel a specific event.
+   *
+   * @param parameters {object} An object containing all of the relevant parameters. Possible values:
+   * @param parameters.token {string} The access token.
+   * @param parameters.eventId {string} The Id of the event.
+   * @param [parameters.useMe] {boolean} If true, use the `/Me` segment instead of the `/Users/<email>` segment. This parameter defaults to false and is ignored if the `parameters.user.email` parameter isn't provided (the `/Me` segment is always used in this case).
+   * @param [parameters.user.email] {string} The SMTP address of the user. If absent, the `/Me` segment is used in the API URL.
+   * @param [parameters.user.timezone] {string} The timezone of the user.
+   * @param [callback] {function} A callback function that is called when the function completes. It should have the signature `function (error, result)`.
+   *
+   * @example var outlook = require('node-outlook');
+   *
+   * // Set the API endpoint to use the v2.0 endpoint
+   * outlook.base.setApiEndpoint('https://outlook.office.com/api/v2.0');
+   *
+   * // This is the oAuth token
+   * var token = 'eyJ0eXAiOiJKV1Q...';
+   *
+   * // The Id property of the event to delete. This could be
+   * // from a previous call to getEvents
+   * var eventId = 'AAMkADVhYTYwNzk...';
+   *
+   * // Pass the user's email address
+   * var userInfo = {
+   *   email: 'sarad@contoso.com'
+   * };
+   *
+   * outlook.calendar.cancelEvent({token: token, eventId: eventId, user: userInfo},
+   *   function(error, result){
+   *     if (error) {
+   *       console.log('cancelEvent returned an error: ' + error);
+   *     }
+   *     else if (result) {
+   *       console.log('SUCCESS');
+   *     }
+   *   });
+   */
+  cancelEvent: function(parameters, callback) {
+    var userSpec = utilities.getUserSegment(parameters);
+
+    // var requestUrl = base.apiEndpoint() + userSpec + '/Events/' + parameters.eventId;
+
+    var requestUrl = 'https://outlook.office.com/api/beta/me/events/' + parameters.eventId + '/Cancel';
+
+
+    var apiOptions = {
+      url: requestUrl,
+      token: parameters.token,
+      user: parameters.user,
+      Comment : parameters.Comment,
+      method: 'POST'
     };
 
     if (parameters.odataParams !== undefined) {
