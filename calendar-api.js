@@ -585,7 +585,7 @@ module.exports = {
       url: requestUrl,
       token: parameters.token,
       user: parameters.user,
-      Comment : parameters.Comment,
+      payload : parameters.update,
       method: 'POST'
     };
 
